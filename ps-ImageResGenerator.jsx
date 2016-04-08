@@ -1,57 +1,1 @@
-// responsive-web-gen.jsx
-// 2016 Francisco Aguilera
-// License: none (public domain)
-// v1.0
-//
-// This script is for Photoshop CC 2015. It outputs images of the  
-// provided sizes from a source PSD.
-//
-
-// bring Photoshop into focus
-#target photoshop
-
-main();
-
-function main() {
-  if(confirm('Generate web images for current document?')) {
-    var reses = prompt('What resolution widths do you need?', '1920, 1600');
-    if(reses) {
-      app.preferences.typeUnits = TypeUnits.PIXELS;
-      for(var i = 0; i < reses.length; ++i) {
-        resize(reses[i]);
-      }
-      alert('Done!');
-    }
-  }
-}
-
-function resize(newWidth) {
-  // Duplicate, resize and export
-  var doc = app.activeDocument,
-      width = doc.width,
-      height = doc.height;
-  if(width >= newWidth) {
-    var resize = false;
-    if(width > newWidth) {
-      resize = true;
-      doc = doc.duplicate();
-      // (original height / original width) x new width = new height
-      doc.resizeImage(newWidth + 'px', ((height / width) * newWidth) + 'px');
-    }
-    var options = new ExportOptionsSaveForWeb();
-    options.format = SaveDocumentType.PNG;
-    options.PNG8 = false;
-    options.transparency = true;
-    options.interlaced = 0;
-    options.includeProfile = false;
-    options.optimized = true;
-    doc.exportDocument(
-      new File(doc.path + '/' + app.activeDocument.name + '_' + newWidth),
-      ExportType.SAVEFORWEB,
-      options
-    );
-    if(resize) {
-      doc.close(SaveOptions.DONOTSAVECHANGES);
-    }
-  }
-}
+﻿// responsive-web-gen.jsx// 2016 Francisco Aguilera// License: none (public domain)// v1.0//// This script is for Photoshop CC 2015. It outputs images of the  // provided sizes from a source PSD.//// bring Photoshop into focus#target photoshopapp.activeDocument.suspendHistory("main", "main()");function main() {  if(confirm('Generate web images for current document?')) {    reses = resPrompt();    if(reses) {      var startRulerUnits = app.preferences.rulerUnits;      var startTypeUnits = app.preferences.typeUnits;      app.preferences.rulerUnits = Units.PIXELS;      app.preferences.typeUnits = TypeUnits.PIXELS;            if (app.documents.length === 0) {        var file = File.openDialog('Select a document to generate from.');        if(file) {          app.open(file);        } else {          return;        }      }        //var outputFolder = Folder.selectDialog('Select a folder for the output files');        for(var i = 0; i < reses.length; ++i) {        resize(reses[i]);      }        app.preferences.rulerUnits = startRulerUnits;      app.preferences.typeUnits = startTypeUnits;            alert('Done!');    }  }}function resPrompt() {  var reses = prompt('What resolution widths do you need?', '1920, 1600');  if(reses) {    var resArray = reses.split(/[,\s]+/);    resArray.sort(function(a, b) {      return b - a;    });    return resArray;  }  return null;}function resize(newWidth) {  var oldDoc = app.activeDocument;  var newDoc = oldDoc.duplicate();    var oldWidth = oldDoc.width.toString().replace(' px', '');  var oldHeight = oldDoc.height.toString().replace(' px', '');    var newHeight = (oldHeight / oldWidth) * newWidth;    if(oldWidth >= newWidth) {    newDoc.resizeImage(newWidth + 'px', newHeight + 'px');  }    var options = new ExportOptionsSaveForWeb();  options.format = SaveDocumentType.PNG;  options.PNG8 = false;    newDoc.exportDocument(new File(oldDoc.path + '/' + oldDoc.name.replace('.psd', '') + '_' + newWidth + '.png'), ExportType.SAVEFORWEB, options);  newDoc.close(SaveOptions.DONOTSAVECHANGES);}
