@@ -13,37 +13,15 @@
 main();
 
 function main() {
-  if(confirm('Generate web images?')) {
-    var file = File.openDialog('Select a PSD file.', 'PSD File:*.psd');
-    if (null === file) {
-      throw 'No file selected. Exting script.';
+  if(confirm('Generate web images for current document?')) {
+    var reses = prompt('What resolution widths do you need?', '1920, 1600');
+    if(reses) {
+      app.preferences.typeUnits = TypeUnits.PIXELS;
+      for(var i = 0; i < reses.length; ++i) {
+        resize(reses[i]);
+      }
+      alert('Done!');
     }
-    open(file);
-
-    var stemsAmount = prompt('What resolutions do you need?', 12);
-    app.preferences.typeUnits = TypeUnits.PIXELS;
-    resize(5120);
-    resize(4096);
-    resize(3840);
-    resize(3200);
-    resize(2880);
-    resize(2560);
-    resize(2048);
-    resize(1920);
-    resize(1600);
-    resize(1366);
-    resize(1280);
-    resize(1024);
-    resize(960);
-    resize(848);
-    resize(720);
-    resize(640);  
-    resize(480);
-    app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
-    if (cleanup) {
-      file.remove();
-    }
-    alert("Done!");
   }
 }
 
@@ -60,18 +38,18 @@ function resize(newWidth) {
       // (original height / original width) x new width = new height
       doc.resizeImage(newWidth + 'px', ((height / width) * newWidth) + 'px');
     }
+    var options = new ExportOptionsSaveForWeb();
+    options.format = SaveDocumentType.PNG;
+    options.PNG8 = false;
+    options.transparency = true;
+    options.interlaced = 0;
+    options.includeProfile = false;
+    options.optimized = true;
     doc.exportDocument(
       new File(doc.path + '/' + app.activeDocument.name + '_' + newWidth),
       ExportType.SAVEFORWEB,
-      new ExportOptionsSaveForWeb
-      {
-        format: SaveDocumentType.PNG,
-        PNG8: false,
-        transparency: true,
-        interlaced: 0,
-        includeProfile: false,
-        optimized: true
-      });
+      options
+    );
     if(resize) {
       doc.close(SaveOptions.DONOTSAVECHANGES);
     }
